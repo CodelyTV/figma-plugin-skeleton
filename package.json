@@ -1,22 +1,24 @@
 {
   "name": "typescript-basic-skeleton",
-  "version": "2.0.0",
-  "description": "Bootstrap your new TypeScript project with the bare minimum dependencies",
+  "version": "1.0.0",
+  "description": "Bootstrap your new Figma Plugin with the bare minimum dependencies",
+  "main": "dist/figma-entrypoint.js",
   "scripts": {
+    "build": "tsc -p tsconfig.json",
     "lint": "eslint --ignore-path .gitignore . --ext .ts",
     "lint:fix": "npm run lint -- --fix",
     "test": "jest"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CodelyTV/typescript-basic-skeleton.git"
+    "url": "git+https://github.com/CodelyTV/figma-plugin-skeleton.git"
   },
   "author": "codelytv",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/CodelyTV/typescript-basic-skeleton/issues"
+    "url": "https://github.com/CodelyTV/figma-plugin-skeleton/issues"
   },
-  "homepage": "https://github.com/CodelyTV/typescript-basic-skeleton#readme",
+  "homepage": "https://github.com/CodelyTV/figma-plugin-skeleton#readme",
   "devDependencies": {
     "@figma/plugin-typings": "^1.49.0",
     "@swc/core": "^1.2.218",
