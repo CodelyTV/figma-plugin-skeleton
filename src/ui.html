@@ -1,12 +1,26 @@
+<link rel="stylesheet" href="../node_modules/figma-plugin-ds/dist/figma-plugin-ds.css">
+<script src="../node_modules/figma-plugin-ds/dist/iife/figma-plugin-ds.js"></script>
+
 <h2>Shape Creator</h2>
-<p>Count: <input id="count" type="number" value="5"></p>
-<button id="create">Create</button>
-<button id="cancel">Cancel</button>
+
+<div class="switch">
+  <input id="dark-mode-on" class="switch__toggle" type="checkbox">
+  <label class="switch__label" for="dark-mode-on">Dark mode</label>
+</div>
+
+<div class="input">
+  <label>Count:
+    <input type="number" id="count" value="5" class="input__field">
+  </label>
+</div>
+
+<button id="create" class='button button--primary'>Create</button>
+<button id="cancel" class='button button--secondary'>Cancel</button>
 <script>
 
 document.getElementById('create').onclick = () => {
-  const textbox = document.getElementById('count');
-  const count = parseInt(textbox.value, 10);
+  const textBox = document.getElementById('count');
+  const count = parseInt(textBox.value, 10);
   parent.postMessage({ pluginMessage: { type: 'create-shapes', count } }, '*')
 }
 
