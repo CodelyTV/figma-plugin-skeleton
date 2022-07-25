@@ -1,5 +1,5 @@
 {
-  "name": "typescript-basic-skeleton",
+  "name": "figma-plugin-skeleton",
   "version": "1.0.0",
   "description": "Bootstrap your new Figma Plugin with the bare minimum dependencies",
   "main": "dist/figma-entrypoint.js",
