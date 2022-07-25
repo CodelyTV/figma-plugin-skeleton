@@ -22,6 +22,7 @@ The purpose of this repository is to leave it with the bare minimum dependencies
 - Execute the tests: `npm run test`
 - Check linter errors: `npm run lint`
 - Fix linter errors: `npm run lint:fix`
+- Make a build unifying everything in the same `dist/main.js` file: `npm run build`
 
 ## Steps to develop your own plugin
 
@@ -45,7 +46,7 @@ The purpose of this repository is to leave it with the bare minimum dependencies
     - Remove the Jest dependency: `npm uninstall -D jest` 
     - `package.json`: Remove the `scripts.test` property 
 6. Install your plugin in your Figma App: `Figma menu` > `Plugins` > `Development` > `Import plugin from manifest…`
-7. Develop in a continuos feedback loop with the watcher (it already takes into account your `tsconfig.json`): `tsc --watch`
+7. Develop in a continuos feedback loop with the watcher (it already takes into account your `tsconfig.json`): `npm run dev`
 8. Star this repository 🌟😊
    
 ☝️ You will find the entrypoint that Figma will execute in the [`src/figma-entrypoint.ts`](src/figma-entrypoint.ts) which is intended to represent the interaction with the Figma UI, leaving the logic of your plugin to the [`src/UseCase.ts`](src/UseCase.ts) class 🤟
