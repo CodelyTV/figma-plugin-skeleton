@@ -1,31 +1,20 @@
-<link rel="stylesheet" href="../node_modules/figma-plugin-ds/dist/figma-plugin-ds.css">
-<script src="../node_modules/figma-plugin-ds/dist/iife/figma-plugin-ds.js"></script>
-
+<head>
+  <title>Figma Plugin Skeleton</title>
+</head>
+<body>
 <h2>Shape Creator</h2>
 
 <div class="switch">
-  <input id="dark-mode-on" class="switch__toggle" type="checkbox">
+  <input class="switch__toggle" id="dark-mode-on" type="checkbox">
   <label class="switch__label" for="dark-mode-on">Dark mode</label>
 </div>
 
 <div class="input">
   <label>Count:
-    <input type="number" id="count" value="5" class="input__field">
+    <input class="input__field" id="count" type="number" value="5">
   </label>
 </div>
 
-<button id="create" class='button button--primary'>Create</button>
-<button id="cancel" class='button button--secondary'>Cancel</button>
-<script>
-
-document.getElementById('create').onclick = () => {
-  const textBox = document.getElementById('count');
-  const count = parseInt(textBox.value, 10);
-  parent.postMessage({ pluginMessage: { type: 'create-shapes', count } }, '*')
-}
-
-document.getElementById('cancel').onclick = () => {
-  parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
-}
-
-</script>
+<button class="button button--primary" id="create">Create</button>
+<button class="button button--secondary" id="cancel">Cancel</button>
+</body>

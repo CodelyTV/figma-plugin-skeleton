@@ -61,6 +61,12 @@ The purpose of this repository is to leave it with the bare minimum dependencies
 - Add test suite runner with Jest
 - Add Continuous Integration Workflow with GitHub Actions
 
+## Inspiration
+
+Other Figma plugins repositories where we found inspiration to create this one:
+
+- [figma-plugin-typescript-boilerplate](https://github.com/aarongarciah/figma-plugin-typescript-boilerplate)
+
 ## Related skeleton templates
 
 Opinionated TypeScript skeletons ready for different purposes:

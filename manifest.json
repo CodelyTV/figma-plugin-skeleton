@@ -2,10 +2,10 @@
   "name": "Figma Plugin Skeleton",
   "id": "1131536692847981535",
   "api": "1.0.0",
-  "main": "dist/main.js",
+  "main": "dist/figmaEntrypoint.js",
+  "ui": "dist/ui.html",
   "editorType": [
     "figma",
     "figjam"
-  ],
-  "ui": "src/ui.html"
+  ]
 }
