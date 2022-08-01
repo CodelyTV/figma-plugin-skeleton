@@ -23,31 +23,32 @@ The purpose of this repository is to leave it with the bare minimum dependencies
 - Check linter errors: `npm run lint`
 - Fix linter errors: `npm run lint:fix`
 - Make a build unifying everything in the same `dist/main.js` file: `npm run build`
+- Run a watcher on your plugin files and make the build on every change: `npm run dev`
 
 ## Steps to develop your own plugin
 
 1. Click on "Use this template" in order to create your own repository based on this one
 2. Clone your repository
 3. Replace the skeleton branding by your own:
-  - Modify the `name` property of your `manifest.json` file, and set the `id` one following the next steps in order to obtain it from Figma:
-    1. Generate a plugin in the Figma App: `Figma menu` > `Plugins` > `Development` > `New Plugin…`
-    2. Download the Figma plugin files
-    3. Open the downloaded `manifest.json` and copy the `id` property value
-  - Modify the following `package.json` properties: `name`, `description`, `repository.url`, `bugs.url`, and `homepage`
+   - Modify the `name` property of your `manifest.json` file, and set the `id` one following the next steps in order to obtain it from Figma:
+     1. Generate a plugin in the Figma App: `Figma menu` > `Plugins` > `Development` > `New Plugin…`
+     2. Download the Figma plugin files
+     3. Open the downloaded `manifest.json` and copy the `id` property value
+   - Modify the following `package.json` properties: `name`, `description`, `repository.url`, `bugs.url`, and `homepage`
 4. Remove unnecessary config depending on your plugin type:
-  - If your plugin does not have a UI:
-    - `manifest.json`: Remove the `ui` property
-    - Remove `ui.html` file from the root of the repository
-  - If your plugin is not intended to be used with FigJam: `manifest.json`: Remove the `figjam` value from the `editorType` property, leaving the property as an array but only containing the `figma` value
-  - If you do not want to test your plugin:
-    - `ci.yml`: Remove the `✅ Run tests` step 
-    - Remove `tests` folder
-    - Remove `jest.config.js` from the root of the repository
-    - Remove the Jest dependency: `npm uninstall -D jest` 
-    - `package.json`: Remove the `scripts.test` property 
-6. Install your plugin in your Figma App: `Figma menu` > `Plugins` > `Development` > `Import plugin from manifest…`
-7. Develop in a continuos feedback loop with the watcher (it already takes into account your `tsconfig.json`): `npm run dev`
-8. Star this repository 🌟😊
+   - If your plugin does not have a UI:
+     - `manifest.json`: Remove the `ui` property
+     - Remove `ui.html` file from the root of the repository
+   - If your plugin is not intended to be used with FigJam: `manifest.json`: Remove the `figjam` value from the `editorType` property, leaving the property as an array but only containing the `figma` value
+   - If you do not want to test your plugin:
+     - `ci.yml`: Remove the `✅ Run tests` step 
+     - Remove `tests` folder
+     - Remove `jest.config.js` from the root of the repository
+     - Remove the Jest dependency: `npm uninstall -D jest` 
+     - `package.json`: Remove the `scripts.test` property 
+5. Install your plugin in your Figma App: `Figma menu` > `Plugins` > `Development` > `Import plugin from manifest…`
+6. Develop in a continuos feedback loop with the watcher (it already takes into account your `tsconfig.json`): `npm run dev`
+7. Star this repository 🌟😊
    
 ☝️ You will find the entrypoint that Figma will execute in the [`src/figma-entrypoint.ts`](src/figma-entrypoint.ts) which is intended to represent the interaction with the Figma UI, leaving the logic of your plugin to the [`src/UseCase.ts`](src/UseCase.ts) class 🤟
 
