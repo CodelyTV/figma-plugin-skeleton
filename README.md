@@ -9,6 +9,7 @@
 </h1>
 
 <p align="center">
+    <a href="https://github.com/CodelyTV/figma-plugin-skeleton/actions/workflows/ci.yml"><img src="https://github.com/CodelyTV/figma-plugin-skeleton/actions/workflows/ci.yml/badge.svg" alt="Build status"/></a>
     <a href="https://github.com/CodelyTV"><img src="https://img.shields.io/badge/CodelyTV-OS-green.svg?style=flat-square" alt="Codely Open Source"/></a>
     <a href="https://pro.codely.com"><img src="https://img.shields.io/badge/CodelyTV-PRO-black.svg?style=flat-square" alt="CodelyTV Courses"/></a>
 </p>
@@ -29,43 +30,33 @@ The purpose of this repository is to leave it with the bare minimum dependencies
 - Execute the tests: `npm run test`
 - Check linter errors: `npm run lint`
 - Fix linter errors: `npm run lint:fix`
-- Make a build unifying everything in the same `dist/main.js` file: `npm run build`
+- Make a build unifying everything in the same `dist/figmaEntrypoint.js` file: `npm run build`
 - Run a watcher on your plugin files and make the build on every change: `npm run dev`
 
 ## 🗺️ Steps to develop your own plugin
 
-1. Click on "Use this template" in order to create your own repository based on this one
+1. Click on the "Use this template" button in order to create your own repository based on this one
 2. Clone your repository
 3. Replace the skeleton branding by your own:
-   - Modify the `name` property of your `manifest.json` file, and set the `id` one following the next steps in order to obtain it from Figma:
+   - Modify the `name` property of your [`manifest.json`](manifest.json) file, and set the `id` value following the next steps in order to obtain it from Figma:
      1. Generate a plugin in the Figma App: `Figma menu` > `Plugins` > `Development` > `New Plugin…`
      2. Download the Figma plugin files
      3. Open the downloaded `manifest.json` and copy the `id` property value
-   - Modify the following `package.json` properties: `name`, `description`, `repository.url`, `bugs.url`, and `homepage`
-4. Remove unnecessary config depending on your plugin type:
-   - If your plugin does not have a UI:
-     - `manifest.json`: Remove the `ui` property
-     - Remove `ui.html` file from the root of the repository
-   - If your plugin is not intended to be used with FigJam: `manifest.json`: Remove the `figjam` value from the `editorType` property, leaving the property as an array but only containing the `figma` value
-   - If you do not want to test your plugin:
-     - `ci.yml`: Remove the `✅ Run tests` step 
-     - Remove `tests` folder
-     - Remove `jest.config.js` from the root of the repository
-     - Remove the Jest dependency: `npm uninstall -D jest` 
-     - `package.json`: Remove the `scripts.test` property 
-5. Install your plugin in your Figma App: `Figma menu` > `Plugins` > `Development` > `Import plugin from manifest…`
-6. Develop in a continuos feedback loop with the watcher (it already takes into account your `tsconfig.json`): `npm run dev`
-7. Star this repository 🌟😊
+   - Modify the following [`package.json`](package.json) properties: `name`, `description`, `repository.url`, `bugs.url`, and `homepage`
+4. Install your plugin in your Figma App: `Figma menu` > `Plugins` > `Development` > `Import plugin from manifest…`
+5. Develop in a continuos feedback loop with the watcher: `npm run dev`
+
+ℹ️ And remember to star this repository in order to promote the work behind it 🌟😊
 
 ## 🏗️ Software Architecture
 
 ### 📍 Figma entrypoint
 
-You will find the entrypoint that Figma will execute in the [`src/figma-entrypoint.ts`](src/figma-entrypoint.ts) which is intended to represent the interaction with the Figma UI, leaving the logic of your plugin to the [`src/UseCase.ts`](src/Greeter.ts) class. This class is where you can add the needed logic that will run once during the plugin initialization 🤟
+You will find the entrypoint that Figma will execute once the plugin is executed in the [`src/figma-entrypoint.ts`](src/figma-entrypoint.ts) file, which is intended to represent the interaction with the Figma UI, leaving the logic of your plugin to the [`src/Greeter.ts`](src/Greeter.ts) class. Feel free to modify this class logic and interaction with the entrypoint 🤟
 
 ### 🎨 UI
 
-In the [`src/ui`](src/ui) folder you will find the HTML, CSS and TS files corresponding to the plugin user interface. We have decided to split them up in order to allow better code modularization, and leaving Webpack to transpile the TypeScript code into JavaScript and inline it into the HTML due to Figma restrictions 😊
+In the [`src/ui`](src/ui) folder you will find the HTML, CSS, and TS files corresponding to the plugin user interface. We have decided to split them up in order to allow better code modularization, and leaving Webpack to transpile the TypeScript code into JavaScript and inline it into the HTML due to Figma restrictions 😊
 
 ### ⚡ Commands
 
@@ -84,15 +75,26 @@ document.addEventListener("click", function (event: MouseEvent) {
 });
 ```
 
-This `postMessage(new CancelCommand());` function call is needed due to [how Figma Plugins run](https://www.figma.com/plugin-docs/how-plugins-run/), that is, we need the where you can see how to structure your new commands. It is as simple as:
+This `postMessage(new CancelCommand());` function call is needed due to [how Figma Plugins run](https://www.figma.com/plugin-docs/how-plugins-run/), that is, communicating ourselves between these 2 elements:
+
+- The [`src/ui/ui.ts`](src/ui/ui.ts) file, which runs in the iframe with access to the browser
+- The [`src/commands`](src/commands) running inside the Figma sandbox with access to the different Figma scene nodes and so on
 
 ![how Figma Plugins run](assets/figma-plugins-architecture.png)
 
+#### 🆕 How to add new commands
+
+If you want to add new capabilities to your plugin, we have intended to allow you to do so without having to worry about all the TypeScript stuff behind the Commands concept. It is as simple as:
+
 1. Create a folder giving a name to your Command. Example: [`src/commands/cancel`](src/commands/cancel)
 2. Create the class that will represent your Command.
-   - Example of the simplest Command you can think of: [`src/commands/cancel/CancelCommand.ts`](src/commands/cancel/CancelCommand.ts)
+   - Example of the simplest Command you can think of (only provides semantics): [`src/commands/cancel/CancelCommand.ts`](src/commands/cancel/CancelCommand.ts)
    - Example of a Command needing parameters: [`src/commands/create-shapes/CreateShapesCommand.ts`](src/commands/create-shapes/CreateShapesCommand.ts)
-3. Create the CommandHandler that will receive your Command and must be responsible to 
+3. Create the CommandHandler that will receive your Command and will represent the business logic behind it. Following the previous examples:
+   - [`src/commands/cancel/CancelCommandHandler.ts`](src/commands/cancel/CancelCommandHandler.ts)
+   - [`src/commands/create-shapes/CreateShapesCommandHandler.ts`](src/commands/create-shapes/CreateShapesCommandHandler.ts)
+4. Link your Command to your CommandHandler adding it to the [`src/commands-setup/CommandsMapping.ts`](src/commands-setup/CommandsMapping.ts)
+5. Send the command from [`src/ui/ui.ts`](src/ui/ui.ts) as shown previously: `postMessage(new CancelCommand());`
 
 ## 🌈 Features
 
@@ -116,15 +118,16 @@ In case you already registered your command, but it throws an unhandled by you e
 
 ### 🧰 Tooling already configured
 
-- [TypeScript](https://www.typescriptlang.org/) (v4)
-- [Prettier](https://prettier.io/)
-- [ESLint](https://eslint.org/) with:
-  - [Simple Import Sort](https://github.com/lydell/eslint-plugin-simple-import-sort/)
-  - [Import plugin](https://github.com/benmosher/eslint-plugin-import/)
+- [TypeScript](https://typescriptlang.org) (v4)
+- [Prettier](https://prettier.io)
+- [Webpack](https://webpack.js.org)
+- [ESLint](https://eslint.org) with:
+  - [Simple Import Sort](https://github.com/lydell/eslint-plugin-simple-import-sort)
+  - [Import plugin](https://github.com/benmosher/eslint-plugin-import)
   - And a few other ES2015+ related rules
 - [Jest](https://jestjs.io) with [DOM Testing Library](https://testing-library.com/docs/dom-testing-library/intro)
-- [GitHub Action workflows](https://github.com/features/actions) set up to run tests and linting on push
-- [SWC](https://swc.rs/): Execute your tests in less than 200ms
+- [GitHub Action workflows](https://github.com/CodelyTV/figma-plugin-skeleton/actions) set up to run tests and linting on push
+- [SWC](https://swc.rs): Execute your tests in less than 200ms
 
 ### 🤏 Decisions made to promote code quality and structure consistency
 
@@ -135,6 +138,30 @@ In case you already registered your command, but it throws an unhandled by you e
 - Add code style checker with Prettier and ESLint
 - Add test suite runner with Jest
 - Add Continuous Integration Workflow with GitHub Actions
+
+### 🧽 Remove unnecessary code
+
+Depending on your plugin type you will find unnecessary code in this template. However, here you have the instructions on how to delete it with a few commands 😊
+
+#### 🙈 Plugins without UI
+
+- [`manifest.json`](manifest.json): Remove the `ui` property
+- Remove the following folders executing with the commands below from the root of the repository:
+  - `rm -rf src/ui`
+  - `rm -rf src/commands`
+  - `rm -rf src/commands-setup`
+
+#### 🖌️ Plugins without FigJam support 
+
+- [`manifest.json`](manifest.json): Remove the `figjam` value from the `editorType` property, leaving the property as an array but only containing the `figma` value
+
+#### 🧊 Plugins without tests
+
+- Remove the `✅ Run tests` step from [the Continuous Integration pipeline](.github/workflows/ci.yml)
+- `rm -rf tests`
+- `rm -rf jest.config.js`
+- `npm uninstall -D jest`
+- Remove the `scripts.test` property from the [`package.json`](package.json)
 
 ## 👀 Inspiration
 
