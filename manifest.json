@@ -7,5 +7,21 @@
   "editorType": [
     "figma",
     "figjam"
+  ],
+  "menu": [
+    {"name": "Shapes Creator Form", "command": "showUi"},
+    {"name": "Shapes Creator Parametrized", "command": "createShapes", "parameters": [
+      {
+        "name": "Number of shapes",
+        "key": "numberOfShapes",
+        "allowFreeform": true
+      },
+      {
+        "name": "Type of shapes",
+        "key": "typeOfShapes",
+        "description": "Only supports Rectangle and Ellipse, but it has autocomplete suggestions!",
+        "optional": true
+      }
+    ]}
   ]
 }

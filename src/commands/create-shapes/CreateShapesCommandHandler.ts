@@ -1,26 +1,47 @@
 import { CommandHandler } from "../../commands-setup/CommandHandler";
-import { CreateShapesCommand } from "./CreateShapesCommand";
+import { CreateShapesCommand, SupportedShapes } from "./CreateShapesCommand";
 
 export class CreateShapesCommandHandler
   implements CommandHandler<CreateShapesCommand>
 {
   private readonly separationBetweenShapes = 150;
 
-  handle(command: CreateShapesCommand): void {
-    const numberOfShapes = command.payload.numberOfShapes;
+  handle({
+    payload: { numberOfShapes, typeOfShapes },
+  }: CreateShapesCommand): void {
+    const shapes = Array.from({ length: numberOfShapes }).map(
+      this.toShape(typeOfShapes)
+    );
 
-    const toRandomShape = (_: unknown, iteration: number) => {
-      const shape = this.createRandomShape();
+    this.focusUiOn(shapes);
+  }
+
+  private toShape(
+    typeOfShapes?: SupportedShapes
+  ): (_: unknown, iteration: number) => SceneNode {
+    return (_: unknown, iteration: number): SceneNode => {
+      const hasToRandomizeShapeTypes = typeOfShapes === undefined;
+
+      const shapesCreator = hasToRandomizeShapeTypes
+        ? this.createRandomShape.bind(this)
+        : this.createShape(typeOfShapes);
+
+      const shape = shapesCreator();
       this.styleShape(shape, iteration);
 
       figma.currentPage.appendChild(shape);
 
       return shape;
     };
+  }
 
-    const shapes = Array.from({ length: numberOfShapes }).map(toRandomShape);
-
-    this.focusUiOn(shapes);
+  private createShape(
+    typeOfShapes: SupportedShapes
+  ): () => RectangleNode | EllipseNode {
+    return (): RectangleNode | EllipseNode =>
+      typeOfShapes === "Rectangle"
+        ? figma.createRectangle()
+        : figma.createEllipse();
   }
 
   private createRandomShape(): RectangleNode | EllipseNode {
@@ -38,6 +59,7 @@ export class CreateShapesCommandHandler
     shapeNumber: number
   ): void {
     shape.x = shapeNumber * this.separationBetweenShapes;
+    shape.rotation = Math.random() * 100;
     shape.fills = [{ type: "SOLID", color: this.randomColor() }];
     shape.name = `${shape.name} ${shapeNumber}`;
   }
