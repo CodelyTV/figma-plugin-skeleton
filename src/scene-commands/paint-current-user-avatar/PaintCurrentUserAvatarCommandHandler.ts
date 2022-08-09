@@ -5,12 +5,15 @@ import { PaintCurrentUserAvatarCommand } from "./PaintCurrentUserAvatarCommand";
 export class PaintCurrentUserAvatarCommandHandler
   implements CommandHandler<PaintCurrentUserAvatarCommand>
 {
+  private readonly avatarImageSize = 100;
+
   constructor(private readonly figma: PluginAPI) {}
 
   // `command` argument needed due to polymorphism.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handle(command: PaintCurrentUserAvatarCommand): Promise<void> {
     const currentUserAvatarUrl = this.figma.currentUser?.photoUrl;
+    const currentUserName = this.figma.currentUser?.name;
 
     if (currentUserAvatarUrl === undefined || currentUserAvatarUrl === null) {
       this.figma.notify("Sorry but you do not have an avatar to add 😅");
@@ -18,50 +21,80 @@ export class PaintCurrentUserAvatarCommandHandler
       return Promise.resolve();
     }
 
-    this.figma.ui.postMessage(new NetworkRequestCommand(currentUserAvatarUrl));
+    const responseType = "arraybuffer";
+    this.figma.ui.postMessage(
+      new NetworkRequestCommand(currentUserAvatarUrl, responseType)
+    );
 
     return new Promise((resolve) => {
-      this.figma.ui.onmessage = (msg) => {
-        console.log(
-          "PaintCurrentUserAvatarCommandHandler, this.figma.ui.onmessage received from NetworkRequestCommand:"
+      this.figma.ui.onmessage = async (message) => {
+        this.ensureToOnlyReceiveNetworkRequestResponse(message);
+
+        await this.createAvatarBadge(
+          message.payload as ArrayBuffer,
+          currentUserName as string
         );
-        console.log(msg);
-        // const text = this.figma.createText();
-        // // Make sure the new text node is visible where we're currently looking
-        // text.x = this.figma.viewport.center.x;
-        // text.y = this.figma.viewport.center.y;
-        //
-        // await this.figma.loadFontAsync(text.fontName as FontName);
-        // text.characters = msg;
-        //
-        // this.figma.closePlugin();
         resolve();
       };
     });
+  }
 
-    /*fetch(currentUserAvatarUrl)
-      .then((response) => response.blob())
-      .then((blob) => {
-        console.log(blob);
+  private ensureToOnlyReceiveNetworkRequestResponse(message: { type: string }) {
+    if (message.type !== "networkRequestResponse") {
+      const errorMessage =
+        "Unexpected message received while performing the request for painting the user avatar.";
+      console.log(errorMessage);
+      console.log("Received message:", message);
 
-        const lele = new Response(blob)
-          .arrayBuffer()
-          .then((buffer) => new Uint8Array(buffer))
-          .then((uint8Array) => this.figma.createImage(uint8Array).hash)
-          .then((hash) => {
-            const imageWrapper = this.figma.createEllipse();
+      throw new Error(errorMessage);
+    }
+  }
 
-            imageWrapper.x = 1;
-            imageWrapper.fills = [
-              { type: "IMAGE", scaleMode: "FILL", imageHash: hash },
-            ];
-            imageWrapper.name = "Avatar";
+  private async createAvatarBadge(
+    imageBuffer: ArrayBuffer,
+    userName: string
+  ): Promise<void> {
+    const avatarImage = this.createAvatarImage(imageBuffer, userName);
+    const userNameText = await this.createAvatarText(userName);
 
-            this.figma.currentPage.appendChild(imageWrapper);
+    const elementsToFocus = [avatarImage, userNameText];
+    this.figma.currentPage.selection = elementsToFocus;
+    this.figma.viewport.scrollAndZoomIntoView(elementsToFocus);
+  }
 
-            this.figma.currentPage.selection = [imageWrapper];
-            this.figma.viewport.scrollAndZoomIntoView([imageWrapper]);
-          });
-      });*/
+  private createAvatarImage(
+    avatarImage: ArrayBuffer,
+    currentUserName: string
+  ): EllipseNode {
+    const imageUint8Array = new Uint8Array(avatarImage);
+    const figmaImage = this.figma.createImage(imageUint8Array);
+    const imageWrapper = this.figma.createEllipse();
+
+    imageWrapper.x = this.figma.viewport.center.x;
+    imageWrapper.y = this.figma.viewport.center.y;
+    imageWrapper.resize(this.avatarImageSize, this.avatarImageSize);
+    imageWrapper.fills = [
+      { type: "IMAGE", scaleMode: "FILL", imageHash: figmaImage.hash },
+    ];
+    imageWrapper.name = `${currentUserName} avatar`;
+
+    this.figma.currentPage.appendChild(imageWrapper);
+
+    return imageWrapper;
+  }
+
+  private async createAvatarText(userName: string): Promise<TextNode> {
+    const userNameText = this.figma.createText();
+    userNameText.x = this.figma.viewport.center.x - userName.length / 2;
+    userNameText.y =
+      this.figma.viewport.center.y +
+      this.avatarImageSize +
+      this.avatarImageSize / 12;
+
+    await this.figma.loadFontAsync(userNameText.fontName as FontName);
+    userNameText.characters = userName;
+    userNameText.fontSize = 14;
+
+    return userNameText;
   }
 }

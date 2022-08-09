@@ -11,11 +11,11 @@ export class NetworkRequestCommandHandler
     return new Promise((resolve) => {
       const request = new XMLHttpRequest();
       request.open(method, url);
-      request.responseType = "text";
+      request.responseType = command.payload.responseType;
       request.onload = () => {
         const commandToPost = {
           type: "networkRequestResponse",
-          response: request.response,
+          payload: request.response,
         };
 
         window.parent.postMessage({ pluginMessage: commandToPost }, "*");
