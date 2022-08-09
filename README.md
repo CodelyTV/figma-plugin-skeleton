@@ -78,7 +78,7 @@ document.addEventListener("click", function (event: MouseEvent) {
 This `postMessage(new CancelCommand());` function call is needed due to [how Figma Plugins run](https://www.figma.com/plugin-docs/how-plugins-run/), that is, communicating ourselves between these 2 elements:
 
 - The [`src/ui/ui.ts`](src/ui/ui.ts) file, which runs in the iframe with access to the browser
-- The [`src/sandbox-commands`](src/sandbox-commands) running inside the Figma sandbox with access to the different Figma scene nodes and so on
+- The [`src/sandbox-commands`](src/scene-commands) running inside the Figma sandbox with access to the different Figma scene nodes and so on
 
 ![how Figma Plugins run](assets/figma-plugins-architecture.png)
 
@@ -86,13 +86,13 @@ This `postMessage(new CancelCommand());` function call is needed due to [how Fig
 
 If you want to add new capabilities to your plugin, we have intended to allow you to do so without having to worry about all the TypeScript stuff behind the Commands concept. It is as simple as:
 
-1. Create a folder giving a name to your Command. Example: [`src/sandbox-commands/cancel`](src/sandbox-commands/cancel)
+1. Create a folder giving a name to your Command. Example: [`src/sandbox-commands/cancel`](src/scene-commands/cancel)
 2. Create the class that will represent your Command.
-   - Example of the simplest Command you can think of (only provides semantics): [`src/sandbox-commands/cancel/CancelCommand.ts`](src/sandbox-commands/cancel/CancelCommand.ts)
-   - Example of a Command needing parameters: [`src/sandbox-commands/create-shapes/CreateShapesCommand.ts`](src/sandbox-commands/create-shapes/CreateShapesCommand.ts)
+   - Example of the simplest Command you can think of (only provides semantics): [`src/sandbox-commands/cancel/CancelCommand.ts`](src/scene-commands/cancel/CancelCommand.ts)
+   - Example of a Command needing parameters: [`src/sandbox-commands/create-shapes/CreateShapesCommand.ts`](src/scene-commands/create-shapes/CreateShapesCommand.ts)
 3. Create the CommandHandler that will receive your Command and will represent the business logic behind it. Following the previous examples:
-   - [`src/sandbox-commands/cancel/CancelCommandHandler.ts`](src/sandbox-commands/cancel/CancelCommandHandler.ts)
-   - [`src/sandbox-commands/create-shapes/CreateShapesCommandHandler.ts`](src/sandbox-commands/create-shapes/CreateShapesCommandHandler.ts)
+   - [`src/sandbox-commands/cancel/CancelCommandHandler.ts`](src/scene-commands/cancel/CancelCommandHandler.ts)
+   - [`src/sandbox-commands/create-shapes/CreateShapesCommandHandler.ts`](src/scene-commands/create-shapes/CreateShapesCommandHandler.ts)
 4. Link your Command to your CommandHandler adding it to the [`src/commands-setup/CommandsMapping.ts`](src/commands-setup/CommandsMapping.ts)
 5. Send the command from [`src/ui/ui.ts`](src/ui/ui.ts) as shown previously: `postMessage(new CancelCommand());`
 

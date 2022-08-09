@@ -4,8 +4,8 @@ import "./ui.css";
 import manifest from "../../manifest.json";
 import { Command } from "../commands-setup/Command";
 import { CommandsMapping } from "../commands-setup/CommandsMapping";
-import { CancelCommand } from "../sandbox-commands/cancel/CancelCommand";
-import { CreateShapesCommand } from "../sandbox-commands/create-shapes/CreateShapesCommand";
+import { CancelCommand } from "../scene-commands/cancel/CancelCommand";
+import { CreateShapesCommand } from "../scene-commands/create-shapes/CreateShapesCommand";
 
 addUiEventListeners();
 registerUiCommandHandlers();
