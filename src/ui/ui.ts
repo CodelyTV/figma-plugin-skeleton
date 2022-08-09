@@ -2,10 +2,10 @@ import "figma-plugin-ds/dist/figma-plugin-ds.css";
 import "./ui.css";
 
 import manifest from "../../manifest.json";
-import { CancelCommand } from "../commands/cancel/CancelCommand";
-import { CreateShapesCommand } from "../commands/create-shapes/CreateShapesCommand";
 import { Command } from "../commands-setup/Command";
 import { CommandsMapping } from "../commands-setup/CommandsMapping";
+import { CancelCommand } from "../sandbox-commands/cancel/CancelCommand";
+import { CreateShapesCommand } from "../sandbox-commands/create-shapes/CreateShapesCommand";
 
 addUiEventListeners();
 registerUiCommandHandlers();
