@@ -6,6 +6,8 @@ export class CreateShapesCommandHandler
 {
   private readonly separationBetweenShapes = 150;
 
+  constructor(private readonly figma: PluginAPI) {}
+
   handle({
     payload: { numberOfShapes, typeOfShapes },
   }: CreateShapesCommand): void {
@@ -29,7 +31,7 @@ export class CreateShapesCommandHandler
       const shape = shapesCreator();
       this.styleShape(shape, iteration);
 
-      figma.currentPage.appendChild(shape);
+      this.figma.currentPage.appendChild(shape);
 
       return shape;
     };
@@ -40,18 +42,18 @@ export class CreateShapesCommandHandler
   ): () => RectangleNode | EllipseNode {
     return (): RectangleNode | EllipseNode =>
       typeOfShapes === "Rectangle"
-        ? figma.createRectangle()
-        : figma.createEllipse();
+        ? this.figma.createRectangle()
+        : this.figma.createEllipse();
   }
 
   private createRandomShape(): RectangleNode | EllipseNode {
     const isRectangleShape = this.randomBoolean();
 
     if (isRectangleShape) {
-      return figma.createRectangle();
+      return this.figma.createRectangle();
     }
 
-    return figma.createEllipse();
+    return this.figma.createEllipse();
   }
 
   private styleShape(
@@ -73,7 +75,7 @@ export class CreateShapesCommandHandler
   }
 
   private focusUiOn(createdShapes: SceneNode[]) {
-    figma.currentPage.selection = createdShapes;
-    figma.viewport.scrollAndZoomIntoView(createdShapes);
+    this.figma.currentPage.selection = createdShapes;
+    this.figma.viewport.scrollAndZoomIntoView(createdShapes);
   }
 }

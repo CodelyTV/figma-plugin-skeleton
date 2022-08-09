@@ -7,19 +7,21 @@ registerPluginMenuCommandParametersSuggestions();
 registerPluginUiCommandHandlers();
 
 function registerPluginMenuCommandHandlers() {
-  figma.on("run", (event: RunEvent) => {
+  figma.on("run", async (event: RunEvent) => {
     const hasToAccessPluginIframe = event.command === "showUi";
     if (hasToAccessPluginIframe) {
       figma.showUI(__html__, { themeColors: true });
       return;
     }
 
+    createInvisibleUiForBrowserApiAccess();
+
     const command = {
       type: event.command,
       payload: event.parameters,
     };
 
-    handleCommand(command);
+    await handleCommand(command);
   });
 }
 
@@ -42,12 +44,11 @@ function registerPluginMenuCommandParametersSuggestions() {
 }
 
 function registerPluginUiCommandHandlers() {
-  figma.ui.onmessage = ({ message }: { message: Command }) => {
-    handleCommand(message);
-  };
+  figma.ui.onmessage = async ({ message }: { message: Command }) =>
+    await handleCommand(message);
 }
 
-function handleCommand(command: Command) {
+async function handleCommand(command: Command): Promise<void> {
   if (!(command.type in CommandsMapping)) {
     notifyErrorToEndUser(
       `Trying to execute the command \`${command.type}\` but it is not registered in the \`CommandsMapping.ts\` file. If you are the developer, go to the \`CommandsMapping.ts\` file and register it to the const with: \`${command.type}: ${command.type}CommandHandler,\``
@@ -57,10 +58,10 @@ function handleCommand(command: Command) {
     return;
   }
 
-  const commandHandler = new CommandsMapping[command.type]();
+  const commandHandler = CommandsMapping[command.type]();
 
   try {
-    commandHandler.handle(command);
+    await commandHandler.handle(command);
   } catch (error) {
     notifyErrorToEndUser(
       `"${error}" executing the command \`${command.type}\`. This command is mapped to a class in the \`CommandsMapping.ts\` file. It could be a good starting point to look for the bug 😊`
@@ -79,4 +80,8 @@ function notifyErrorToEndUser(errorMessage: string): void {
   console.error(
     `🫣️ Error in Figma plugin "${manifest.name}"\r\nFigma Plugin ID: "${figma.pluginId}"\r\n\r\n${errorMessage}.`
   );
+}
+
+function createInvisibleUiForBrowserApiAccess() {
+  figma.showUI(__html__, { visible: false });
 }

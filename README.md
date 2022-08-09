@@ -52,7 +52,7 @@ The purpose of this repository is to leave it with the bare minimum dependencies
 
 ### 📍 Figma entrypoint
 
-You will find the entrypoint that Figma will execute once the plugin is executed in the [`src/figma-entrypoint.ts`](src/figma-entrypoint.ts) file, which is intended to represent the interaction with the Figma UI, leaving the logic of your plugin to the [`src/Greeter.ts`](src/Greeter.ts) class. Feel free to modify this class logic and interaction with the entrypoint 🤟
+You will find the entrypoint that Figma will execute once the plugin is executed in the [`src/figma-entrypoint.ts`](src/figma-entrypoint.ts) file, which is intended to represent the interaction with the Figma UI, leaving the logic of your plugin to the different commands that will be executed in the Browser or in the Figma Scene Sandbox.
 
 ### 🎨 UI
 
@@ -78,7 +78,7 @@ document.addEventListener("click", function (event: MouseEvent) {
 This `postMessage(new CancelCommand());` function call is needed due to [how Figma Plugins run](https://www.figma.com/plugin-docs/how-plugins-run/), that is, communicating ourselves between these 2 elements:
 
 - The [`src/ui/ui.ts`](src/ui/ui.ts) file, which runs in the iframe with access to the browser
-- The [`src/commands`](src/commands) running inside the Figma sandbox with access to the different Figma scene nodes and so on
+- The [`src/sandbox-commands`](src/scene-commands) running inside the Figma sandbox with access to the different Figma scene nodes and so on
 
 ![how Figma Plugins run](assets/figma-plugins-architecture.png)
 
@@ -86,13 +86,13 @@ This `postMessage(new CancelCommand());` function call is needed due to [how Fig
 
 If you want to add new capabilities to your plugin, we have intended to allow you to do so without having to worry about all the TypeScript stuff behind the Commands concept. It is as simple as:
 
-1. Create a folder giving a name to your Command. Example: [`src/commands/cancel`](src/commands/cancel)
+1. Create a folder giving a name to your Command. Example: [`src/sandbox-commands/cancel`](src/scene-commands/cancel)
 2. Create the class that will represent your Command.
-   - Example of the simplest Command you can think of (only provides semantics): [`src/commands/cancel/CancelCommand.ts`](src/commands/cancel/CancelCommand.ts)
-   - Example of a Command needing parameters: [`src/commands/create-shapes/CreateShapesCommand.ts`](src/commands/create-shapes/CreateShapesCommand.ts)
+   - Example of the simplest Command you can think of (only provides semantics): [`src/sandbox-commands/cancel/CancelCommand.ts`](src/scene-commands/cancel/CancelCommand.ts)
+   - Example of a Command needing parameters: [`src/sandbox-commands/create-shapes/CreateShapesCommand.ts`](src/scene-commands/create-shapes/CreateShapesCommand.ts)
 3. Create the CommandHandler that will receive your Command and will represent the business logic behind it. Following the previous examples:
-   - [`src/commands/cancel/CancelCommandHandler.ts`](src/commands/cancel/CancelCommandHandler.ts)
-   - [`src/commands/create-shapes/CreateShapesCommandHandler.ts`](src/commands/create-shapes/CreateShapesCommandHandler.ts)
+   - [`src/sandbox-commands/cancel/CancelCommandHandler.ts`](src/scene-commands/cancel/CancelCommandHandler.ts)
+   - [`src/sandbox-commands/create-shapes/CreateShapesCommandHandler.ts`](src/scene-commands/create-shapes/CreateShapesCommandHandler.ts)
 4. Link your Command to your CommandHandler adding it to the [`src/commands-setup/CommandsMapping.ts`](src/commands-setup/CommandsMapping.ts)
 5. Send the command from [`src/ui/ui.ts`](src/ui/ui.ts) as shown previously: `postMessage(new CancelCommand());`
 
@@ -143,13 +143,11 @@ In case you already registered your command, but it throws an unhandled by you e
 
 Depending on your plugin type you will find unnecessary code in this template. However, here you have the instructions on how to delete it with a few commands 😊
 
-#### 🙈 Plugins without UI
+#### 🙈 Plugins with just a use case (no menu actions or UI)
 
 - [`manifest.json`](manifest.json): Remove the `ui` property
-- Remove the following folders executing with the commands below from the root of the repository:
-  - `rm -rf src/ui`
-  - `rm -rf src/commands`
-  - `rm -rf src/commands-setup`
+- Remove the following folder: `rm -rf src/ui`
+- Modify the [`src/figma-entrypoint.ts`](src/figma-entrypoint.ts) directly executing the command you want to perform as a single use case with `handleCommand({ type: "yourCommandTypeIdentifier" });`
 
 #### 🖌️ Plugins without FigJam support 
 
