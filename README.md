@@ -75,29 +75,107 @@ document.addEventListener("click", function (event: MouseEvent) {
 });
 ```
 
-This `postMessage(new CancelCommand());` function call is needed due to [how Figma Plugins run](https://www.figma.com/plugin-docs/how-plugins-run/), that is, communicating ourselves between these 2 elements:
+This `postMessage(new CancelCommand());` function call is needed due to [how Figma Plugins run](https://www.figma.com/plugin-docs/how-plugins-run/), that is, communicating ourselves between the following types of elements:
 
-- The [`src/ui/ui.ts`](src/ui/ui.ts) file, which runs in the iframe with access to the browser
-- The [`src/sandbox-commands`](src/scene-commands) running inside the Figma sandbox with access to the different Figma scene nodes and so on
+![Codely Figma Plugin Skeleton Architecture](assets/figma-plugins-architecture.png 'There are 2 different "worlds". The Figma scene one, and the browser iframe one')
 
-![how Figma Plugins run](assets/figma-plugins-architecture.png)
+1. The [`src/figma-entrypoint.ts`](src/figma-entrypoint.ts): As described before, in general this is the file that Figma will execute once the user runs your plugin. However, there are multiple scenarios depending on the type of plugin:
+   - **Plugins with a single use case**:
+
+     ![Single Use Case Figma Plugins does not have a dropdown menu](assets/single-use-case-figma-plugin.png)
+     - **Plugins with UI**: If you do not have a `"menu"` key declared in the [`manifest.json`](manifest.json), but a `"ui"` one, Figma will render the [`src/ui/ui.html`](src/ui/ui.html) which is bundled together with the [`src/ui/ui.ts`](src/ui/ui.ts) and [`src/ui/ui.css`](src/ui/ui.css). That UI will run inside the Figma Browser iframe, and you will be able to execute Commands as in the previous example, that is, using the `postMessage` method from the `ui.ts`. These commands will arribe to this `figma-entrypoint.ts` in order to be executed. You have an example for the "Cancel" button of the plugin UI mentioned before: [`CancelCommand`](src/scene-commands/cancel/CancelCommand.ts) mapped in the [`CommandsMapping`](src/commands-setup/CommandsMapping.ts#L12) to the [`CancelCommandHandler`](src/scene-commands/cancel/CancelCommandHandler.ts) and tested out in the [`CancelCommandHandler.test`](tests/scene-commands/CancelCommandHandler.test.ts).
+     - **Plugins without UI**: If you do not have either a `"menu"` key declared in the [`manifest.json`](manifest.json), nor a `"ui"` one, Figma will render the [`src/figma-entrypoint.ts`](src/figma-entrypoint.ts) and you will be able to execute Commands directly from there with the `handleCommand` method. These commands will arribe to this `figma-entrypoint.ts` in order to be executed.
+   - **Plugins with multiple use cases**:
+
+     ![Multiple Use Cases Figma Plugins does have a dropdown menu](assets/multiple-use-cases-figma-plugin.png)
+
+     You can define several use cases will be defined as `menu` items declared in the [`manifest.json`](manifest.json). In this case, this entrypoint will directly execute the Command Handler mapped in the [`src/commands-setup/CommandsMapping.ts`](src/commands-setup/CommandsMapping.ts) that corresponds to the `menu.[].command` key. You have an example for instance for the `createShapes` Command which is mapped to the [`src/scene-commands/create-shapes/CreateShapesCommandHandler.ts`](src/scene-commands/create-shapes/CreateShapesCommandHandler.ts).
+     One of this use cases can actually be to show the UI. You can see it [declared with the `showUi` command name](manifest.json#L13) and [handled as a particular case](src/figma-entrypoint.ts#L11).
+2. The Browser iframe Figma creates for us in order to run the plugin UI. This iframe is needed in order to gain access to the browser APIs in order to perform HTTP requests for instance.
+3. The Figma scene exposed in order to create elements or access to the different layers from the [`src/scene-commands`](src/scene-commands) which runs inside the Figma sandbox.
+4. The previous commands could need some information from the external world, so they must send out a command to be handled inside the iframe. You can see an example of this in the [`PaintCurrentUserAvatarCommandHandler`](src/scene-commands/paint-current-user-avatar/PaintCurrentUserAvatarCommandHandler.ts). All you have to do to perform the request is posting a `NetworkRequestCommand`:
+   ```typescript
+   this.figma.ui.postMessage(
+     new NetworkRequestCommand("http://example.com/some/api/endpoint", "text")
+   );
+   ```
+   And listen for the response:
+   ```typescript
+   return new Promise((resolve) => {
+     this.figma.ui.onmessage = async (message) => {
+       await this.doThingsWith(message.payload);
+       resolve();
+     };
+   });
+   ```
 
 #### 🆕 How to add new commands
 
 If you want to add new capabilities to your plugin, we have intended to allow you to do so without having to worry about all the TypeScript stuff behind the Commands concept. It is as simple as:
 
-1. Create a folder giving a name to your Command. Example: [`src/sandbox-commands/cancel`](src/scene-commands/cancel)
+1. Create a folder giving a name to your Command. Example: [`src/scene-commands/cancel`](src/scene-commands/cancel)
 2. Create the class that will represent your Command.
-   - Example of the simplest Command you can think of (only provides semantics): [`src/sandbox-commands/cancel/CancelCommand.ts`](src/scene-commands/cancel/CancelCommand.ts)
-   - Example of a Command needing parameters: [`src/sandbox-commands/create-shapes/CreateShapesCommand.ts`](src/scene-commands/create-shapes/CreateShapesCommand.ts)
+   - Example of the simplest Command you can think of (only provides semantics): [`src/scene-commands/cancel/CancelCommand.ts`](src/scene-commands/cancel/CancelCommand.ts)
+   - Example of a Command needing parameters: [`src/scene-commands/create-shapes/CreateShapesCommand.ts`](src/scene-commands/create-shapes/CreateShapesCommand.ts)
 3. Create the CommandHandler that will receive your Command and will represent the business logic behind it. Following the previous examples:
-   - [`src/sandbox-commands/cancel/CancelCommandHandler.ts`](src/scene-commands/cancel/CancelCommandHandler.ts)
-   - [`src/sandbox-commands/create-shapes/CreateShapesCommandHandler.ts`](src/scene-commands/create-shapes/CreateShapesCommandHandler.ts)
+   - [`src/scene-commands/cancel/CancelCommandHandler.ts`](src/scene-commands/cancel/CancelCommandHandler.ts)
+   - [`src/scene-commands/create-shapes/CreateShapesCommandHandler.ts`](src/scene-commands/create-shapes/CreateShapesCommandHandler.ts)
 4. Link your Command to your CommandHandler adding it to the [`src/commands-setup/CommandsMapping.ts`](src/commands-setup/CommandsMapping.ts)
 5. Send the command from [`src/ui/ui.ts`](src/ui/ui.ts) as shown previously: `postMessage(new CancelCommand());`
 
 ## 🌈 Features
 
+### ✨ Illustrative working examples
+
+In order to show the potential Figma Plugins have, we have developed several use cases:
+
+![Plugin menu with the 3 use cases](assets/plugin-use-cases.png)
+
+#### 👀 Shapes Creator Form
+
+![Shapes Creator Form](assets/shapes-creator-form-use-case.png)
+![Shapes Creator Form Result](assets/shapes-creator-form-use-case-result.png)
+
+Demonstrative purposes:
+
+- Render a UI allowing it to be modular and scalable (Webpack bundling working in Figma thanks to JS inline)
+- How to communicate from the Figma Browser iframe where the UI lives to the Figma Scene Sandbox in order to execute commands like the `createShapes` one which require to modify the viewport, create and select objects, and so on
+- Work with the Figma Plugins API randomizing multiple variables to make it a little more playful:
+  - The shapes to create (rectangles and ellipses)
+  - The rotation of each shape
+  - The color of the shapes
+
+####  ⌨️ Shapes Creator Parametrized
+
+You can launch parametrized menu commands from the Figma Quick Actions search bar:
+
+![Shapes Creator Parametrized in the Quick Actions search bar](assets/shapes-creator-parametrized-use-case.png)
+
+It even allows you to configure optional parameters and suggestions for them:
+
+![Filtering our the type of shapes parameter value](assets/shapes-creator-parametrized-suggestions-use-case.png)
+
+Demonstrative purposes:
+
+- Take advantage of the Parametrized Figma Plugins in order to offer a simple UI integrated with the Figma ecosystem without having to implement any HTML or CSS
+- Reuse the very same use case ([`CreateShapesCommandHandler`](src/scene-commands/create-shapes/CreateShapesCommandHandler.ts)) from multiple entry-points. That, is we are using that very same business logic class:
+  - Calling it [from the `ui.ts`](src/ui/ui.ts#L23) once the user clicks on the `create` button because we are executing the command with `postMessage(new CreateShapesCommand(count));`
+  - Configuring [the parametrized menu entry in the `manifest.json`](manifest.json#L14) with the very same `command` name [as mapped in the `CommandsMapping`](src/commands-setup/CommandsMapping.ts#L13), and the same parameters `key` as defined in [the command constructor](src/scene-commands/create-shapes/CreateShapesCommand.ts#L12)
+- Configure optional parameters and how they map to nullable TypeScript arguments
+- Specify suggestions for some parameter values that can be programmatically set. Example in [the `figma-entrypoint`](src/figma-entrypoint.ts#L28) for the `typeOfShapes` parameter.
+
+####  🎨 Paint current user avatar
+
+![How the use case paint out the avatar and its user name](assets/paint-current-user-avatar-use-case.png)
+
+Demonstrative purposes:
+
+- Communicate back from the Figma Scene Sandbox to the Figma Browser iframe in order to perform the HTTP request in order to get the actual user avatar image based on its URL due to not having access to browser APIs inside the `src/scene-commands` world
+- Define the architecture in order to have that HTTP request response handler defined in a cohesive way inside the actual use case which fires it. Example in the [`PaintCurrentUserAvatarCommandHandler`](src/scene-commands/paint-current-user-avatar/PaintCurrentUserAvatarCommandHandler.ts#L29).
+- Paint an image inside the Figma scene based on its binary information
+- Declare a more complex menu structure containing separators and sub-menu items
+- Loading the text font needed in order to create a text layer and position it relative to the image size
+ 
 ### ✅ Software development best practices
 
 Focus of all the decisions made in the development of this skeleton: Let you, the developer of the plugin that end users will install, **focus on implementing your actual use cases** instead of all the surrounding boilerplate ⚡
