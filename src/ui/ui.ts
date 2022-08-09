@@ -54,7 +54,7 @@ async function handleCommand(command: Command) {
     return;
   }
 
-  const commandHandler = new CommandsMapping[command.type]();
+  const commandHandler = CommandsMapping[command.type]();
 
   try {
     await commandHandler.handle(command);

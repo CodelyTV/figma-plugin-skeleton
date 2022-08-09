@@ -5,34 +5,36 @@ import { PaintCurrentUserAvatarCommand } from "./PaintCurrentUserAvatarCommand";
 export class PaintCurrentUserAvatarCommandHandler
   implements CommandHandler<PaintCurrentUserAvatarCommand>
 {
+  constructor(private readonly figma: PluginAPI) {}
+
   // `command` argument needed due to polymorphism.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handle(command: PaintCurrentUserAvatarCommand): Promise<void> {
-    const currentUserAvatarUrl = figma.currentUser?.photoUrl;
+    const currentUserAvatarUrl = this.figma.currentUser?.photoUrl;
 
     if (currentUserAvatarUrl === undefined || currentUserAvatarUrl === null) {
-      figma.notify("Sorry but you do not have an avatar to add 😅");
+      this.figma.notify("Sorry but you do not have an avatar to add 😅");
 
       return Promise.resolve();
     }
 
-    figma.ui.postMessage(new NetworkRequestCommand(currentUserAvatarUrl));
+    this.figma.ui.postMessage(new NetworkRequestCommand(currentUserAvatarUrl));
 
     return new Promise((resolve) => {
-      figma.ui.onmessage = (msg) => {
+      this.figma.ui.onmessage = (msg) => {
         console.log(
-          "PaintCurrentUserAvatarCommandHandler, figma.ui.onmessage received from NetworkRequestCommand:"
+          "PaintCurrentUserAvatarCommandHandler, this.figma.ui.onmessage received from NetworkRequestCommand:"
         );
         console.log(msg);
-        // const text = figma.createText();
+        // const text = this.figma.createText();
         // // Make sure the new text node is visible where we're currently looking
-        // text.x = figma.viewport.center.x;
-        // text.y = figma.viewport.center.y;
+        // text.x = this.figma.viewport.center.x;
+        // text.y = this.figma.viewport.center.y;
         //
-        // await figma.loadFontAsync(text.fontName as FontName);
+        // await this.figma.loadFontAsync(text.fontName as FontName);
         // text.characters = msg;
         //
-        // figma.closePlugin();
+        // this.figma.closePlugin();
         resolve();
       };
     });
@@ -45,9 +47,9 @@ export class PaintCurrentUserAvatarCommandHandler
         const lele = new Response(blob)
           .arrayBuffer()
           .then((buffer) => new Uint8Array(buffer))
-          .then((uint8Array) => figma.createImage(uint8Array).hash)
+          .then((uint8Array) => this.figma.createImage(uint8Array).hash)
           .then((hash) => {
-            const imageWrapper = figma.createEllipse();
+            const imageWrapper = this.figma.createEllipse();
 
             imageWrapper.x = 1;
             imageWrapper.fills = [
@@ -55,10 +57,10 @@ export class PaintCurrentUserAvatarCommandHandler
             ];
             imageWrapper.name = "Avatar";
 
-            figma.currentPage.appendChild(imageWrapper);
+            this.figma.currentPage.appendChild(imageWrapper);
 
-            figma.currentPage.selection = [imageWrapper];
-            figma.viewport.scrollAndZoomIntoView([imageWrapper]);
+            this.figma.currentPage.selection = [imageWrapper];
+            this.figma.viewport.scrollAndZoomIntoView([imageWrapper]);
           });
       });*/
   }
