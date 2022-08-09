@@ -52,7 +52,7 @@ The purpose of this repository is to leave it with the bare minimum dependencies
 
 ### 📍 Figma entrypoint
 
-You will find the entrypoint that Figma will execute once the plugin is executed in the [`src/figma-entrypoint.ts`](src/figma-entrypoint.ts) file, which is intended to represent the interaction with the Figma UI, leaving the logic of your plugin to the [`src/Greeter.ts`](src/Greeter.ts) class. Feel free to modify this class logic and interaction with the entrypoint 🤟
+You will find the entrypoint that Figma will execute once the plugin is executed in the [`src/figma-entrypoint.ts`](src/figma-entrypoint.ts) file, which is intended to represent the interaction with the Figma UI, leaving the logic of your plugin to the different commands that will be executed in the Browser or in the Figma Scene Sandbox.
 
 ### 🎨 UI
 
