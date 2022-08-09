@@ -1,4 +1,5 @@
 import { CommandHandler } from "../../commands-setup/CommandHandler";
+import { postMessage } from "../../commands-setup/postMessage";
 import { NetworkRequestCommand } from "./NetworkRequestCommand";
 
 export class NetworkRequestCommandHandler
@@ -18,7 +19,7 @@ export class NetworkRequestCommandHandler
           payload: request.response,
         };
 
-        window.parent.postMessage({ pluginMessage: commandToPost }, "*");
+        postMessage(commandToPost);
         resolve();
       };
       request.send();
