@@ -1,5 +1,5 @@
+import { NetworkRequestCommand } from "../../browser-commands/network-request/NetworkRequestCommand";
 import { CommandHandler } from "../../commands-setup/CommandHandler";
-import { NetworkRequestCommand } from "../../ui-commands/network-request/NetworkRequestCommand";
 import { PaintCurrentUserAvatarCommand } from "./PaintCurrentUserAvatarCommand";
 
 export class PaintCurrentUserAvatarCommandHandler

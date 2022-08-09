@@ -1,7 +1,7 @@
+import { NetworkRequestCommandHandler } from "../browser-commands/network-request/NetworkRequestCommandHandler";
 import { CancelCommandHandler } from "../sandbox-commands/cancel/CancelCommandHandler";
 import { CreateShapesCommandHandler } from "../sandbox-commands/create-shapes/CreateShapesCommandHandler";
 import { PaintCurrentUserAvatarCommandHandler } from "../sandbox-commands/paint-current-user-avatar/PaintCurrentUserAvatarCommandHandler";
-import { NetworkRequestCommandHandler } from "../ui-commands/network-request/NetworkRequestCommandHandler";
 import { Command } from "./Command";
 import { CommandHandler } from "./CommandHandler";
 import { Newable } from "./Newable";
