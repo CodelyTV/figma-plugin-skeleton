@@ -10,6 +10,7 @@ function registerPluginMenuCommandHandlers() {
     const hasToAccessPluginIframe = event.command === "showUi";
     if (hasToAccessPluginIframe) {
       figma.showUI(__html__, { themeColors: true });
+      figma.ui.resize(450, 300);
       return;
     }
 

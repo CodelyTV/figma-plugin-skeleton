@@ -1,3 +1,5 @@
 body {
-    background-color: aquamarine;
+    background-color: var(--figma-color-bg);
+    color: var(--figma-color-text);
+    padding: 24px;
 }
