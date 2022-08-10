@@ -4,6 +4,7 @@ import "./ui.css";
 import manifest from "../../manifest.json";
 import { Command } from "../commands-setup/Command";
 import { CommandsMapping } from "../commands-setup/CommandsMapping";
+import { postMessage } from "../commands-setup/postMessage";
 import { CancelCommand } from "../scene-commands/cancel/CancelCommand";
 import { CreateShapesCommand } from "../scene-commands/create-shapes/CreateShapesCommand";
 
@@ -38,10 +39,6 @@ function registerUiCommandHandlers() {
 
     await handleCommand(command);
   };
-}
-
-function postMessage(message: Command): void {
-  parent.postMessage({ pluginMessage: { message } }, "*");
 }
 
 async function handleCommand(command: Command) {

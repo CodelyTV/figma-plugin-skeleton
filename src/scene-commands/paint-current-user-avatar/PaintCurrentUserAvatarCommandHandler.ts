@@ -1,5 +1,6 @@
 import { NetworkRequestCommand } from "../../browser-commands/network-request/NetworkRequestCommand";
 import { CommandHandler } from "../../commands-setup/CommandHandler";
+import { postMessage } from "../../commands-setup/postMessage";
 import { PaintCurrentUserAvatarCommand } from "./PaintCurrentUserAvatarCommand";
 
 export class PaintCurrentUserAvatarCommandHandler
@@ -22,16 +23,14 @@ export class PaintCurrentUserAvatarCommandHandler
     }
 
     const responseType = "arraybuffer";
-    this.figma.ui.postMessage(
-      new NetworkRequestCommand(currentUserAvatarUrl, responseType)
-    );
+    postMessage(new NetworkRequestCommand(currentUserAvatarUrl, responseType));
 
     return new Promise((resolve) => {
-      this.figma.ui.onmessage = async (message) => {
-        this.ensureToOnlyReceiveNetworkRequestResponse(message);
+      this.figma.ui.onmessage = async (command) => {
+        this.ensureToOnlyReceiveNetworkRequestResponse(command);
 
         await this.createAvatarBadge(
-          message.payload as ArrayBuffer,
+          command.payload as ArrayBuffer,
           currentUserName as string
         );
         resolve();
@@ -39,12 +38,10 @@ export class PaintCurrentUserAvatarCommandHandler
     });
   }
 
-  private ensureToOnlyReceiveNetworkRequestResponse(message: { type: string }) {
-    if (message.type !== "networkRequestResponse") {
+  private ensureToOnlyReceiveNetworkRequestResponse(command: { type: string }) {
+    if (command.type !== "networkRequestResponse") {
       const errorMessage =
-        "Unexpected message received while performing the request for painting the user avatar.";
-      console.log(errorMessage);
-      console.log("Received message:", message);
+        "Unexpected command received while performing the request for painting the user avatar.";
 
       throw new Error(errorMessage);
     }
