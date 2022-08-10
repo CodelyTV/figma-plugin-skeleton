@@ -40,11 +40,16 @@ The purpose of this repository is to leave it with the bare minimum dependencies
 3. Replace the skeleton branding by your own:
    - Modify the `name` property of your [`manifest.json`](manifest.json) file, and set the `id` value following the next steps in order to obtain it from Figma:
      1. Generate a plugin in the Figma App: `Figma menu` > `Plugins` > `Development` > `New Plugin…`
-     2. Download the Figma plugin files
-     3. Open the downloaded `manifest.json` and copy the `id` property value
+     2. Give it a random name and choose any kind of plugin
+     3. Save the Figma plugin files locally
+     4. Open the saved `manifest.json` and copy the `id` property value
    - Modify the following [`package.json`](package.json) properties: `name`, `description`, `repository.url`, `bugs.url`, and `homepage`
-4. Install your plugin in your Figma App: `Figma menu` > `Plugins` > `Development` > `Import plugin from manifest…`
+4. Install all the plugin dependencies running: `npm install`
 5. Develop in a continuos feedback loop with the watcher: `npm run dev`
+6. Install your plugin in your Figma App: `Figma menu` > `Plugins` > `Development` > `Import plugin from manifest…`
+7. [Remove the unnecessary code](https://github.com/CodelyTV/figma-plugin-skeleton#-remove-unnecessary-code)
+8. [Add your new use case Command](https://github.com/CodelyTV/figma-plugin-skeleton#-how-to-add-new-commands)
+9. Now you can call to the `handleCommand` function passing in the created command
 
 ℹ️ And remember to star this repository in order to promote the work behind it 🌟😊
 
@@ -123,7 +128,9 @@ If you want to add new capabilities to your plugin, we have intended to allow yo
    - [`src/scene-commands/cancel/CancelCommandHandler.ts`](src/scene-commands/cancel/CancelCommandHandler.ts)
    - [`src/scene-commands/create-shapes/CreateShapesCommandHandler.ts`](src/scene-commands/create-shapes/CreateShapesCommandHandler.ts)
 4. Link your Command to your CommandHandler adding it to the [`src/commands-setup/CommandsMapping.ts`](src/commands-setup/CommandsMapping.ts)
-5. Send the command from [`src/ui/ui.ts`](src/ui/ui.ts) as shown previously: `executeCommand(new CancelCommand());`
+5. Send the command from one of the following places depending on your plugin type:
+   - Plugins with UI: From [`src/ui/ui.ts`](src/ui/ui.ts) with `executeCommand(new CancelCommand());`
+   - Plugins without UI: From the [`src/figma-entrypoint.ts`](src/figma-entrypoint.ts) with `await handleCommand(new CancelCommand());`
 
 ## 🌈 Features
 
@@ -248,21 +255,30 @@ Depending on your plugin type you will find unnecessary code in this template. H
 
 #### 🙈 Plugins with just a use case (no menu actions or UI)
 
-- [`manifest.json`](manifest.json): Remove the `ui` property
+- [`manifest.json`](manifest.json): Remove the `ui` and `menu` properties
+- [`webpack.config.js`](webpack.config.js):
+  - Remove the `module.exports.entry.ui` and `module.exports.plugins` keys
+  - Remove the css and static assets rules from `module.exports.module.rules` only leaving out the ts files one
+- Remove the unneeded dependencies:
+  - `npm remove html-inline-script-webpack-plugin html-webpack-plugin style-loader css-loader figma-plugin-ds`
 - Remove the following folder: `rm -rf src/ui`
 - Modify the [`src/figma-entrypoint.ts`](src/figma-entrypoint.ts) directly executing the command you want to perform as a single use case with `handleCommand({ type: "yourCommandTypeIdentifier" });`
 
 #### 🖌️ Plugins without FigJam support 
 
-- [`manifest.json`](manifest.json): Remove the `figjam` value from the `editorType` property, leaving the property as an array but only containing the `figma` value
+[`manifest.json`](manifest.json): Remove the `figjam` value from the `editorType` property, leaving the property as an array but only containing the `figma` value.
 
 #### 🧊 Plugins without tests
 
 - Remove the `✅ Run tests` step from [the Continuous Integration pipeline](.github/workflows/ci.yml)
 - `rm -rf tests`
 - `rm -rf jest.config.js`
-- `npm uninstall -D jest`
+- `npm remove jest @types/jest jest-mock-extended @swc/jest @swc/core`
 - Remove the `scripts.test` property from the [`package.json`](package.json)
+
+### 🔒 Plugins without special permissions
+
+Remove the `permissions` key from your `manifest.json`.
 
 ## 👀 Inspiration
 
