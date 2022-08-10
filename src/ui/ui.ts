@@ -1,8 +1,8 @@
 import "figma-plugin-ds/dist/figma-plugin-ds.css";
 import "./ui.css";
 
+import { executeCommand } from "../commands-setup/executeCommand";
 import { handleCommand } from "../commands-setup/handleCommand";
-import { postMessage } from "../commands-setup/postMessage";
 import { CancelCommand } from "../scene-commands/cancel/CancelCommand";
 import { CreateShapesCommand } from "../scene-commands/create-shapes/CreateShapesCommand";
 
@@ -19,10 +19,10 @@ function addUiEventListeners(): void {
         const countBase = 10;
         const count = parseInt(textBox.value, countBase);
 
-        postMessage(new CreateShapesCommand(count));
+        executeCommand(new CreateShapesCommand(count));
         break;
       case "cancel":
-        postMessage(new CancelCommand());
+        executeCommand(new CancelCommand());
         break;
     }
   });

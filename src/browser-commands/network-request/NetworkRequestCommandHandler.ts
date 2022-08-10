@@ -1,5 +1,5 @@
 import { CommandHandler } from "../../commands-setup/CommandHandler";
-import { postMessage } from "../../commands-setup/postMessage";
+import { executeCommand } from "../../commands-setup/executeCommand";
 import { NetworkRequestCommand } from "./NetworkRequestCommand";
 
 export class NetworkRequestCommandHandler
@@ -19,7 +19,7 @@ export class NetworkRequestCommandHandler
           payload: request.response,
         };
 
-        postMessage(commandToPost);
+        executeCommand(commandToPost);
         resolve();
       };
       request.send();

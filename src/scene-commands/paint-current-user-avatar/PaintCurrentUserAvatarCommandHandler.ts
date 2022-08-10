@@ -1,6 +1,6 @@
 import { NetworkRequestCommand } from "../../browser-commands/network-request/NetworkRequestCommand";
 import { CommandHandler } from "../../commands-setup/CommandHandler";
-import { postMessage } from "../../commands-setup/postMessage";
+import { executeCommand } from "../../commands-setup/executeCommand";
 import { PaintCurrentUserAvatarCommand } from "./PaintCurrentUserAvatarCommand";
 
 export class PaintCurrentUserAvatarCommandHandler
@@ -23,7 +23,9 @@ export class PaintCurrentUserAvatarCommandHandler
     }
 
     const responseType = "arraybuffer";
-    postMessage(new NetworkRequestCommand(currentUserAvatarUrl, responseType));
+    executeCommand(
+      new NetworkRequestCommand(currentUserAvatarUrl, responseType)
+    );
 
     return new Promise((resolve) => {
       this.figma.ui.onmessage = async (command) => {

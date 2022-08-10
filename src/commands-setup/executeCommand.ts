@@ -1,8 +1,6 @@
 import { Command } from "./Command";
 
-export const postMessage = <CommandType extends Command>(
-  command: CommandType
-): void => {
+export const executeCommand = (command: Command): void => {
   const isFromSceneSandboxToUiIframe = typeof window === "undefined";
 
   isFromSceneSandboxToUiIframe

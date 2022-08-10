@@ -2,9 +2,7 @@ import manifest from "../../manifest.json";
 import { Command } from "./Command";
 import { CommandsMapping } from "./CommandsMapping";
 
-export async function handleCommand<CommandType extends Command>(
-  command: CommandType
-): Promise<void> {
+export async function handleCommand(command: Command): Promise<void> {
   if (!(command.type in CommandsMapping)) {
     notifyErrorToEndUser(
       `Trying to execute the command \`${command.type}\` but it is not registered in the \`CommandsMapping.ts\` file. If you are the developer, go to the \`CommandsMapping.ts\` file and register it to the const with: \`${command.type}: ${command.type}CommandHandler,\``
