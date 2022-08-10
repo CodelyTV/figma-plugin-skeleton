@@ -6,6 +6,9 @@ const path = require("path");
 module.exports = {
   mode: "production",
   devtool: false,
+  experiments: {
+    topLevelAwait: true,
+  },
   entry: {
     ui: "./src/ui/ui.ts",
     figmaEntrypoint: "./src/figma-entrypoint.ts",
