@@ -63,19 +63,21 @@ In the [`src/ui`](src/ui) folder you will find the HTML, CSS, and TS files corre
 Commands are the different actions an end user can perform from the plugin UI. In the [`src/ui/ui.ts`](src/ui/ui.ts) you will see that we are adding event listeners to the plugin UI in order to execute these Commands such as the following one:
 
 ```typescript
-document.addEventListener("click", function (event: MouseEvent) {
+import { executeCommand } from "./commands-setup/executeCommand";
+
+document.addEventListener("click", function(event: MouseEvent) {
   const target = event.target as HTMLElement;
 
   switch (target.id) {
     case "cancel":
-      postMessage(new CancelCommand());
+      executeCommand(new CancelCommand());
       break;
     // […]
   }
 });
 ```
 
-This `postMessage(new CancelCommand());` function call is needed due to [how Figma Plugins run](https://www.figma.com/plugin-docs/how-plugins-run/), that is, communicating ourselves between the following types of elements:
+This `executeCommand(new CancelCommand());` function call is needed due to how Figma Plugins run, that is, communicating ourselves between the following types of elements:
 
 ![Codely Figma Plugin Skeleton Architecture](assets/figma-plugins-architecture.png 'There are 2 different "worlds". The Figma scene one, and the browser iframe one')
 
@@ -83,7 +85,7 @@ This `postMessage(new CancelCommand());` function call is needed due to [how Fig
    - **Plugins with a single use case**:
 
      ![Single Use Case Figma Plugins does not have a dropdown menu](assets/single-use-case-figma-plugin.png)
-     - **Plugins with UI**: If you do not have a `"menu"` key declared in the [`manifest.json`](manifest.json), but a `"ui"` one, Figma will render the [`src/ui/ui.html`](src/ui/ui.html) which is bundled together with the [`src/ui/ui.ts`](src/ui/ui.ts) and [`src/ui/ui.css`](src/ui/ui.css). That UI will run inside the Figma Browser iframe, and you will be able to execute Commands as in the previous example, that is, using the `postMessage` method from the `ui.ts`. These commands will arribe to this `figma-entrypoint.ts` in order to be executed. You have an example for the "Cancel" button of the plugin UI mentioned before: [`CancelCommand`](src/scene-commands/cancel/CancelCommand.ts) mapped in the [`CommandsMapping`](src/commands-setup/CommandsMapping.ts#L12) to the [`CancelCommandHandler`](src/scene-commands/cancel/CancelCommandHandler.ts) and tested out in the [`CancelCommandHandler.test`](tests/scene-commands/CancelCommandHandler.test.ts).
+     - **Plugins with UI**: If you do not have a `"menu"` key declared in the [`manifest.json`](manifest.json), but a `"ui"` one, Figma will render the [`src/ui/ui.html`](src/ui/ui.html) which is bundled together with the [`src/ui/ui.ts`](src/ui/ui.ts) and [`src/ui/ui.css`](src/ui/ui.css). That UI will run inside the Figma Browser iframe, and you will be able to execute Commands as in the previous example, that is, using the `executeCommand` method from the `ui.ts`. These commands will arribe to this `figma-entrypoint.ts` in order to be executed. You have an example for the "Cancel" button of the plugin UI mentioned before: [`CancelCommand`](src/scene-commands/cancel/CancelCommand.ts) mapped in the [`CommandsMapping`](src/commands-setup/CommandsMapping.ts#L12) to the [`CancelCommandHandler`](src/scene-commands/cancel/CancelCommandHandler.ts) and tested out in the [`CancelCommandHandler.test`](tests/scene-commands/CancelCommandHandler.test.ts).
      - **Plugins without UI**: If you do not have either a `"menu"` key declared in the [`manifest.json`](manifest.json), nor a `"ui"` one, Figma will render the [`src/figma-entrypoint.ts`](src/figma-entrypoint.ts) and you will be able to execute Commands directly from there with the `handleCommand` method. These commands will arribe to this `figma-entrypoint.ts` in order to be executed.
    - **Plugins with multiple use cases**:
 
@@ -93,10 +95,10 @@ This `postMessage(new CancelCommand());` function call is needed due to [how Fig
      One of this use cases can actually be to show the UI. You can see it [declared with the `showUi` command name](manifest.json#L13) and [handled as a particular case](src/figma-entrypoint.ts#L11).
 2. The Browser iframe Figma creates for us in order to run the plugin UI. This iframe is needed in order to gain access to the browser APIs in order to perform HTTP requests for instance.
 3. The Figma scene exposed in order to create elements or access to the different layers from the [`src/scene-commands`](src/scene-commands) which runs inside the Figma sandbox.
-4. The previous commands could need some information from the external world, so they must send out a command to be handled inside the iframe. You can see an example of this in the [`PaintCurrentUserAvatarCommandHandler`](src/scene-commands/paint-current-user-avatar/PaintCurrentUserAvatarCommandHandler.ts). All you have to do to perform the request is posting a `NetworkRequestCommand`:
+4. The previous commands could need some information from the external world, so they must send out a command to be handled inside the iframe. You can see an example of this in the [`PaintCurrentUserAvatarCommandHandler`](src/scene-commands/paint-current-user-avatar/PaintCurrentUserAvatarCommandHandler.ts). All you have to do to perform the request is executing a `NetworkRequestCommand`:
    ```typescript
-   this.figma.ui.postMessage(
-     new NetworkRequestCommand("http://example.com/some/api/endpoint", "text")
+   executeCommand(
+     new NetworkRequestCommand("https://example.com/some/api/endpoint", "text")
    );
    ```
    And listen for the response:
@@ -121,7 +123,7 @@ If you want to add new capabilities to your plugin, we have intended to allow yo
    - [`src/scene-commands/cancel/CancelCommandHandler.ts`](src/scene-commands/cancel/CancelCommandHandler.ts)
    - [`src/scene-commands/create-shapes/CreateShapesCommandHandler.ts`](src/scene-commands/create-shapes/CreateShapesCommandHandler.ts)
 4. Link your Command to your CommandHandler adding it to the [`src/commands-setup/CommandsMapping.ts`](src/commands-setup/CommandsMapping.ts)
-5. Send the command from [`src/ui/ui.ts`](src/ui/ui.ts) as shown previously: `postMessage(new CancelCommand());`
+5. Send the command from [`src/ui/ui.ts`](src/ui/ui.ts) as shown previously: `executeCommand(new CancelCommand());`
 
 ## 🌈 Features
 
@@ -159,7 +161,7 @@ Demonstrative purposes:
 
 - Take advantage of the Parametrized Figma Plugins in order to offer a simple UI integrated with the Figma ecosystem without having to implement any HTML or CSS
 - Reuse the very same use case ([`CreateShapesCommandHandler`](src/scene-commands/create-shapes/CreateShapesCommandHandler.ts)) from multiple entry-points. That, is we are using that very same business logic class:
-  - Calling it [from the `ui.ts`](src/ui/ui.ts#L23) once the user clicks on the `create` button because we are executing the command with `postMessage(new CreateShapesCommand(count));`
+  - Calling it [from the `ui.ts`](src/ui/ui.ts#L23) once the user clicks on the `create` button because we are executing the command with `executeCommand(new CreateShapesCommand(count));`
   - Configuring [the parametrized menu entry in the `manifest.json`](manifest.json#L14) with the very same `command` name [as mapped in the `CommandsMapping`](src/commands-setup/CommandsMapping.ts#L13), and the same parameters `key` as defined in [the command constructor](src/scene-commands/create-shapes/CreateShapesCommand.ts#L12)
 - Configure optional parameters and how they map to nullable TypeScript arguments
 - Specify suggestions for some parameter values that can be programmatically set. Example in [the `figma-entrypoint`](src/figma-entrypoint.ts#L28) for the `typeOfShapes` parameter.
@@ -175,7 +177,30 @@ Demonstrative purposes:
 - Paint an image inside the Figma scene based on its binary information
 - Declare a more complex menu structure containing separators and sub-menu items
 - Loading the text font needed in order to create a text layer and position it relative to the image size
- 
+
+### 🫵 Simplified communication
+
+If you take a look at the official documentation on [how Figma Plugins run](https://www.figma.com/plugin-docs/how-plugins-run/), you will see that there is a `postMessage` function in order to communicate between the two Figma Plugin worlds previously described:
+
+![Original Figma Plugins Architecture](assets/figma-plugins-architecture-original.png)
+
+However, that `postMessage` function is different depending on where you are executing it:
+
+- From the Figma Scene sandbox to the UI iframe: `figma.ui.postMessage(message)`
+- From the UI iframe to the Figma Scene sandbox: `window.parent.postMessage({ pluginMessage: command }, "*")`
+
+We have simplified this with an abstraction that also provides semantics and type constraints making it easier to use. You only have to use [the `executeCommand` function](src/commands-setup/executeCommand.ts) without worrying about anything else:
+
+```typescript
+import { executeCommand } from "./commands-setup/executeCommand";
+
+executeCommand(new CancelCommand());
+```
+
+This is why you will see it on the Codely Figma Plugin Architecture diagram while communicating on both ways:
+
+![Codely Figma Plugin Skeleton Architecture](assets/figma-plugins-architecture.png 'There are 2 different "worlds". The Figma scene one, and the browser iframe one')
+
 ### ✅ Software development best practices
 
 Focus of all the decisions made in the development of this skeleton: Let you, the developer of the plugin that end users will install, **focus on implementing your actual use cases** instead of all the surrounding boilerplate ⚡
@@ -186,7 +211,7 @@ We have followed an approach for developing this Codely Figma Plugin Skeleton ba
 
 This skeleton already provides a friendly way to handle error produced by the plugins built with it.
 
-If your plugin makes use of the `postMessage` method in order to execute commands, we already have you covered in case you have not registered them yet. It would be visible in the actual Figma interface, and specify all the details in the JavaScript console, ¡even suggesting a fix! 🌈:
+If your plugin makes use of the `executeCommand` method in order to execute commands, we already have you covered in case you have not registered them yet. It would be visible in the actual Figma interface, and specify all the details in the JavaScript console, ¡even suggesting a fix! 🌈:
 
 ![Error seen if you do not add your new command.](assets/error-handling-unhandled-plugin-exception.png)
 
