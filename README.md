@@ -276,7 +276,7 @@ Depending on your plugin type you will find unnecessary code in this template. H
 - `npm remove jest @types/jest jest-mock-extended @swc/jest @swc/core`
 - Remove the `scripts.test` property from the [`package.json`](package.json)
 
-### 🔒 Plugins without special permissions
+#### 🔒 Plugins without special permissions
 
 Remove the `permissions` key from your `manifest.json`.
 
