@@ -1,14 +1,15 @@
 import { mock } from "jest-mock-extended";
 
+import { FigmaPluginApi } from "../../src/domain/FigmaPluginApi";
 import { CancelCommand } from "../../src/scene-commands/cancel/CancelCommand";
 import { CancelCommandHandler } from "../../src/scene-commands/cancel/CancelCommandHandler";
 
 describe("CancelCommandHandler", () => {
   it("can be instantiated without throwing errors", () => {
-    const figmaPluginApiMock = mock<PluginAPI>();
+    const figmaPluginApiMock = mock<FigmaPluginApi>();
 
     const cancelCommandHandlerInstantiator = () => {
-      new CancelCommandHandler(figmaPluginApiMock);
+      CancelCommandHandler.withFigmaAdapter(figmaPluginApiMock);
     };
 
     expect(cancelCommandHandlerInstantiator).not.toThrow(TypeError);
