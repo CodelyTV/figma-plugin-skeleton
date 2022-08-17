@@ -9,14 +9,14 @@ describe("CancelCommandHandler", () => {
     const figmaPluginApiMock = mock<FigmaPluginApi>();
 
     const cancelCommandHandlerInstantiator = () => {
-      CancelCommandHandler.withFigmaAdapter(figmaPluginApiMock);
+      new CancelCommandHandler(figmaPluginApiMock);
     };
 
     expect(cancelCommandHandlerInstantiator).not.toThrow(TypeError);
   });
 
   it("notifies the end used with a farewell message", () => {
-    const figmaPluginApiMock = mock<PluginAPI>();
+    const figmaPluginApiMock = mock<FigmaPluginApi>();
     const cancelCommandHandler = new CancelCommandHandler(figmaPluginApiMock);
     const randomCancelCommand = new CancelCommand();
 

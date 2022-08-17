@@ -10,9 +10,7 @@ import { CommandHandler } from "./CommandHandler";
 // Define its arbitrary key and its corresponding Handler class.
 // Tip: Declare your Command and CommandHandler classes creating a folder inside the `src/scene-commands` or `src/browser-commands` ones depending on the things you need to get access to (see the README explanation) 😊
 const officialFigmaPluginApi = new OfficialFigmaPluginApi(figma);
-const cancelCommandHandler = CancelCommandHandler.withFigmaAdapter(
-  officialFigmaPluginApi
-);
+const cancelCommandHandler = new CancelCommandHandler(officialFigmaPluginApi);
 
 export const CommandsMapping: Record<string, () => CommandHandler<Command>> = {
   cancel: () => cancelCommandHandler,

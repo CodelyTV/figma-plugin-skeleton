@@ -3,11 +3,7 @@ import { FigmaPluginApi } from "../../domain/FigmaPluginApi";
 import { CancelCommand } from "./CancelCommand";
 
 export class CancelCommandHandler implements CommandHandler<CancelCommand> {
-  constructor(private readonly figma: PluginAPI) {}
-
-  static withFigmaAdapter(figma: FigmaPluginApi) {
-    return new this(figma as PluginAPI);
-  }
+  constructor(private readonly figma: FigmaPluginApi) {}
 
   // `command` argument needed due to polymorphism.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
