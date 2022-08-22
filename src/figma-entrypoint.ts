@@ -50,6 +50,5 @@ function registerPluginUiCommandHandlers() {
 }
 
 function createInvisibleUiForBrowserApiAccess() {
-  const randomHtmlToAvoidFigmaError = "<body></body>";
-  figma.showUI(randomHtmlToAvoidFigmaError, { visible: false });
+  figma.showUI(__html__, { visible: false });
 }
