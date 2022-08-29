@@ -1,6 +1,5 @@
-import { NetworkRequestCommand } from "../../browser-commands/network-request/NetworkRequestCommand";
 import { CommandHandler } from "../../commands-setup/CommandHandler";
-import { executeCommand } from "../../commands-setup/executeCommand";
+import { FigmaPluginApi, FigmaUser } from "../../domain/FigmaPluginApi";
 import { PaintCurrentUserAvatarCommand } from "./PaintCurrentUserAvatarCommand";
 
 export class PaintCurrentUserAvatarCommandHandler
@@ -8,45 +7,27 @@ export class PaintCurrentUserAvatarCommandHandler
 {
   private readonly avatarImageSize = 100;
 
-  constructor(private readonly figma: PluginAPI) {}
+  constructor(private readonly figma: FigmaPluginApi) {}
 
   // `command` argument needed due to polymorphism.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  handle(command: PaintCurrentUserAvatarCommand): Promise<void> {
-    const currentUserAvatarUrl = this.figma.currentUser?.photoUrl;
-    const currentUserName = this.figma.currentUser?.name;
+  async handle(command: PaintCurrentUserAvatarCommand): Promise<void> {
+    let currentUser: FigmaUser;
 
-    if (currentUserAvatarUrl === undefined || currentUserAvatarUrl === null) {
+    try {
+      currentUser = this.figma.currentUser();
+    } catch (e) {
       this.figma.notify("Sorry but you do not have an avatar to add 😅");
 
       return Promise.resolve();
     }
 
-    const responseType = "arraybuffer";
-    executeCommand(
-      new NetworkRequestCommand(currentUserAvatarUrl, responseType)
+    const response = await this.figma.request(
+      currentUser.photoUrl,
+      "arraybuffer"
     );
 
-    return new Promise((resolve) => {
-      this.figma.ui.onmessage = async (command) => {
-        this.ensureToOnlyReceiveNetworkRequestResponse(command);
-
-        await this.createAvatarBadge(
-          command.payload as ArrayBuffer,
-          currentUserName as string
-        );
-        resolve();
-      };
-    });
-  }
-
-  private ensureToOnlyReceiveNetworkRequestResponse(command: { type: string }) {
-    if (command.type !== "networkRequestResponse") {
-      const errorMessage =
-        "Unexpected command received while performing the request for painting the user avatar.";
-
-      throw new Error(errorMessage);
-    }
+    await this.createAvatarBadge(response, currentUser.name);
   }
 
   private async createAvatarBadge(

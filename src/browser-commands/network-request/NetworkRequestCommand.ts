@@ -1,6 +1,6 @@
 import { Command } from "../../commands-setup/Command";
 
-type SupportedResponseTypes = "text" | "arraybuffer";
+export type SupportedResponseTypes = "application/json" | "arraybuffer";
 
 export class NetworkRequestCommand implements Command {
   readonly type = "networkRequest";
