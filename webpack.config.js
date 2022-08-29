@@ -17,15 +17,7 @@ module.exports = {
     extensions: [".ts"],
   },
   module: {
-    rules: [
-      { test: /\.ts$/, loader: "ts-loader", exclude: /node_modules/ },
-
-      // Enables including CSS by doing `import './file.css'` in your TypeScript code
-      { test: /\.css$/, use: ["style-loader", "css-loader"] },
-
-      // Allows you to use `<%= require('./file.svg') %>` in your HTML code to get a data URI
-      { test: /\.(png|jpg|gif|svg|webp)$/, type: "asset/inline" },
-    ],
+    rules: [{ test: /\.ts$/, loader: "ts-loader", exclude: /node_modules/ }],
   },
   output: {
     filename: "[name].js",
