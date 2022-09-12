@@ -4,30 +4,45 @@
   "api": "1.0.0",
   "main": "dist/figmaEntrypoint.js",
   "ui": "dist/ui.html",
-  "permissions": ["currentuser"],
+  "permissions": [
+    "currentuser"
+  ],
   "editorType": [
     "figma",
     "figjam"
   ],
   "menu": [
-    {"name": "Shapes Creator Form", "command": "showUi"},
-    {"name": "Shapes Creator Parametrized", "command": "createShapes", "parameters": [
-      {
-        "name": "Number of shapes",
-        "key": "numberOfShapes",
-        "allowFreeform": true
-      },
-      {
-        "name": "Type of shapes",
-        "key": "typeOfShapes",
-        "description": "Only supports Rectangle and Ellipse, but it has autocomplete suggestions!",
-        "optional": true
-      }
-    ]},
-    {"separator": true},
-    {"name": "Other actions",
+    {
+      "name": "Shapes Creator Form",
+      "command": "showUi"
+    },
+    {
+      "name": "Shapes Creator Parametrized",
+      "command": "createShapes",
+      "parameters": [
+        {
+          "name": "Number of shapes",
+          "key": "numberOfShapes",
+          "allowFreeform": true
+        },
+        {
+          "name": "Type of shapes",
+          "key": "typeOfShapes",
+          "description": "Only supports Rectangle and Ellipse, but it has autocomplete suggestions!",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "separator": true
+    },
+    {
+      "name": "Other actions",
       "menu": [
-        {"name": "Paint current user avatar", "command": "paintCurrentUserAvatar"}
+        {
+          "name": "Paint current user avatar",
+          "command": "paintCurrentUserAvatar"
+        }
       ]
     }
   ]
