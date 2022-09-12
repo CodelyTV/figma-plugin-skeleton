@@ -1,5 +1,4 @@
 {
-  "$schema": "https://www.unpkg.com/figma-plugin-manifest@1.0.1/schema.json",
   "name": "Codely Figma Plugin Skeleton",
   "id": "1131536692847981535",
   "api": "1.0.0",
