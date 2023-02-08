@@ -7,16 +7,18 @@ export function registerUiEventListeners(): void {
 		const target = event.target as HTMLElement;
 
 		switch (target.id) {
-			case "create":
+			case "create": {
 				const textBox = document.getElementById("count") as HTMLInputElement;
 				const countBase = 10;
 				const count = parseInt(textBox.value, countBase);
 
 				executeCommand(new CreateShapesCommand(count));
 				break;
-			case "cancel":
+			}
+			case "cancel": {
 				executeCommand(new CancelCommand());
 				break;
+			}
 		}
 	});
 }

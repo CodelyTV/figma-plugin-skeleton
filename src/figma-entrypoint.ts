@@ -6,7 +6,7 @@ registerPluginMenuCommandParametersSuggestions();
 registerPluginUiCommandHandlers();
 
 function registerPluginMenuCommandHandlers() {
-	figma.on("run", async (event: RunEvent) => {
+	figma.on("run", (event: RunEvent) => {
 		const hasToAccessPluginIframe = event.command === "showUi";
 		if (hasToAccessPluginIframe) {
 			figma.showUI(__html__, { themeColors: true });
@@ -22,19 +22,20 @@ function registerPluginMenuCommandHandlers() {
 			payload: event.parameters,
 		};
 
-		await handleCommand(command);
+		handleCommand(command);
 	});
 }
 
 function registerPluginMenuCommandParametersSuggestions() {
-	figma.parameters.on("input", async ({ key, query, result }: ParameterInputEvent) => {
+	figma.parameters.on("input", ({ key, query, result }: ParameterInputEvent) => {
 		switch (key) {
-			case "typeOfShapes":
+			case "typeOfShapes": {
 				const shapes = ["Rectangle", "Ellipse"];
 				const queryMatchingShapes = shapes.filter((s) => s.startsWith(query));
 
 				result.setSuggestions(queryMatchingShapes);
 				break;
+			}
 			default:
 				break;
 		}
@@ -42,8 +43,9 @@ function registerPluginMenuCommandParametersSuggestions() {
 }
 
 function registerPluginUiCommandHandlers() {
-	figma.ui.onmessage = async <CommandType extends Command>(command: CommandType) =>
-		await handleCommand(command);
+	figma.ui.onmessage = <CommandType extends Command>(command: CommandType) => {
+		handleCommand(command);
+	};
 }
 
 function createInvisibleUiForBrowserApiAccess() {

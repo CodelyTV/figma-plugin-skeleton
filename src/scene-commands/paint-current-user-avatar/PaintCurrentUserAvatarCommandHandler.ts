@@ -1,4 +1,5 @@
 import { NetworkRequestCommand } from "../../browser-commands/network-request/NetworkRequestCommand";
+import { Command } from "../../commands-setup/Command";
 import { CommandHandler } from "../../commands-setup/CommandHandler";
 import { executeCommand } from "../../commands-setup/executeCommand";
 import { PaintCurrentUserAvatarCommand } from "./PaintCurrentUserAvatarCommand";
@@ -11,7 +12,7 @@ export class PaintCurrentUserAvatarCommandHandler
 	constructor(private readonly figma: PluginAPI) {}
 
 	// `command` argument needed due to polymorphism.
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
 	async handle(command: PaintCurrentUserAvatarCommand): Promise<void> {
 		const currentUserAvatarUrl = this.figma.currentUser?.photoUrl;
 		const currentUserName = this.figma.currentUser?.name;
@@ -25,12 +26,13 @@ export class PaintCurrentUserAvatarCommandHandler
 		const responseType = "arraybuffer";
 		executeCommand(new NetworkRequestCommand(currentUserAvatarUrl, responseType));
 
-		return new Promise((resolve) => {
-			this.figma.ui.onmessage = async (command) => {
+		return new Promise((resolve, reject) => {
+			this.figma.ui.onmessage = (command: Command) => {
 				this.ensureToOnlyReceiveNetworkRequestResponse(command);
 
-				await this.createAvatarBadge(command.payload as ArrayBuffer, currentUserName as string);
-				resolve();
+				this.createAvatarBadge(command.payload as ArrayBuffer, currentUserName as string)
+					.then(() => resolve())
+					.catch(reject);
 			};
 		});
 	}

@@ -14,7 +14,7 @@ export class NetworkRequestCommandHandler implements CommandHandler<NetworkReque
 			request.onload = () => {
 				const commandToPost = {
 					type: "networkRequestResponse",
-					payload: request.response,
+					payload: request.response as XMLHttpRequestResponseType,
 				};
 
 				executeCommand(commandToPost);

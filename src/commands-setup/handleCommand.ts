@@ -19,7 +19,9 @@ export async function handleCommand(command: Command): Promise<void> {
 		await commandHandler.handle(command);
 	} catch (error) {
 		notifyErrorToEndUser(
-			`"${error}" executing the command \`${command.type}\`. This command is mapped to a class in the \`CommandsMapping.ts\` file. It could be a good starting point to look for the bug 😊`
+			`"${error as string}" executing the command \`${
+				command.type
+			}\`. This command is mapped to a class in the \`CommandsMapping.ts\` file. It could be a good starting point to look for the bug 😊`
 		);
 	} finally {
 		const isACommandInsideAnotherCommand = command.type === "networkRequest";
@@ -37,6 +39,8 @@ function notifyErrorToEndUser(errorMessage: string): void {
 	);
 
 	console.error(
-		`🫣️ Error in Figma plugin "${manifest.name}"\r\nFigma Plugin ID: "${figma.pluginId}"\r\n\r\n${errorMessage}.`
+		`🫣️ Error in Figma plugin "${manifest.name}"\r\nFigma Plugin ID: "${
+			figma.pluginId ?? ""
+		}"\r\n\r\n${errorMessage}.`
 	);
 }
