@@ -304,7 +304,6 @@ it to the end user in a very friendly way 😇:
 ### 🧰 Tooling already configured
 
 - [TypeScript](https://typescriptlang.org) (v4)
-- [Prettier](https://prettier.io)
 - [Webpack](https://webpack.js.org)
 - [ESLint](https://eslint.org/) with:
   - [Codely's config](https://github.com/lydell/eslint-plugin-simple-import-sort/) (includes ESLint's recommended rules, Prettier, Import plugin and more)
