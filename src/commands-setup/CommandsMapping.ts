@@ -9,8 +9,8 @@ import { CommandHandler } from "./CommandHandler";
 // Define its arbitrary key and its corresponding Handler class.
 // Tip: Declare your Command and CommandHandler classes creating a folder inside the `src/scene-commands` or `src/browser-commands` ones depending on the things you need to get access to (see the README explanation) 😊
 export const CommandsMapping: Record<string, () => CommandHandler<Command>> = {
-  cancel: () => new CancelCommandHandler(figma),
-  createShapes: () => new CreateShapesCommandHandler(figma),
-  paintCurrentUserAvatar: () => new PaintCurrentUserAvatarCommandHandler(figma),
-  networkRequest: () => new NetworkRequestCommandHandler(),
+	cancel: () => new CancelCommandHandler(figma),
+	createShapes: () => new CreateShapesCommandHandler(figma),
+	paintCurrentUserAvatar: () => new PaintCurrentUserAvatarCommandHandler(figma),
+	networkRequest: () => new NetworkRequestCommandHandler(),
 };
